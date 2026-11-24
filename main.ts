@@ -21,7 +21,7 @@
 // the summary just said "something due soon, probably fine". 122 characters,
 // one line.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const LINE =
   "Sorry I'm late — I summarised the deadline to save context, and the summary just said 'something due soon, probably fine'.";
@@ -44,3 +44,7 @@ gate(LINE);
 const OUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 mkdirSync(OUT_DIR, { recursive: true });
 writeFileSync(`${OUT_DIR}/entry.txt`, LINE, "utf8");
+// Verify what actually landed on disk, not just the string in memory:
+// re-read the written bytes and re-run the same gate, so an encoding or
+// filesystem surprise can never silently ship an entry that fails it.
+gate(readFileSync(`${OUT_DIR}/entry.txt`, "utf8"));
